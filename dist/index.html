@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>HH Goa 2026 — Builder ID Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="wordmark" href="#top" aria-label="HH Goa 2026 home">HH GOA <span>2026</span></a>
+        <p class="header-title">Builder ID Generator</p>
+        <a class="hashtag" href="#create">#FrameInGoa</a>
+      </div>
+    </header>
+    <div class="event-strip" aria-hidden="true"><div class="ticker-track"><span>GOA, INDIA · 28 — 31 OCT 2026</span><span>BUILD · SHIP · LAUNCH</span><span>#FRAMEINGOA</span><span>GOA, INDIA · 28 — 31 OCT 2026</span><span>BUILD · SHIP · LAUNCH</span><span>#FRAMEINGOA</span><span>GOA, INDIA · 28 — 31 OCT 2026</span><span>BUILD · SHIP · LAUNCH</span><span>#FRAMEINGOA</span></div></div>
+
+    <main id="top">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">HH GOA 2026</p>
+        <h1 id="page-title">Builder ID Generator</h1>
+        <p class="lede">Create your HH Goa 2026 Builder ID. Upload your photo, add your role, and generate a card to share.</p>
+        <p class="intro-stamp">Task 01 <span>·</span> #FrameInGoa</p>
+      </section>
+
+      <section class="workspace" id="create" aria-label="Create your builder ID">
+        <div class="form-panel">
+          <div class="section-heading"><p class="eyebrow">CREATE YOUR BUILDER ID</p><p class="step">01 / 02</p></div>
+          <form id="builder-form" novalidate>
+            <fieldset>
+              <legend class="sr-only">Your photo</legend>
+              <label class="dropzone" id="dropzone" for="photo-input">
+                <input id="photo-input" type="file" accept="image/jpeg,image/png,image/heic,image/heif" />
+                <span class="dropzone-title">Upload your photo</span>
+                <span class="dropzone-copy">JPG, PNG, HEIC or HEIF · Max 10MB</span>
+                <span class="choose-button">Choose photo</span>
+              </label>
+              <p id="file-name" class="file-name" aria-live="polite"></p>
+            </fieldset>
+            <div class="field"><label for="name">Name</label><input id="name" name="name" autocomplete="name" placeholder="Your name" maxlength="42" required /></div>
+            <div class="field"><label for="role">Stack / role</label><input id="role" name="role" placeholder="e.g. AI/ML · Python" maxlength="60" required /></div>
+            <div class="field"><label for="title">Builder title</label><input id="title" name="title" placeholder="e.g. The AI Builder" maxlength="54" required /><p class="hint">We’ll suggest a title from your role if you leave this blank.</p></div>
+            <p class="form-error" id="form-error" role="alert"></p>
+            <button class="button primary" type="submit">Generate Builder Card <span aria-hidden="true">→</span></button>
+          </form>
+        </div>
+
+        <div class="preview-panel" aria-live="polite">
+          <div class="section-heading"><p class="eyebrow">PREVIEW</p><p class="step">02 / 02</p></div>
+          <div class="canvas-shell" id="canvas-shell">
+            <canvas id="builder-canvas" width="1080" height="1350" aria-label="Your generated Builder ID card"></canvas>
+            <div class="preview-empty" id="preview-empty" aria-hidden="true"></div>
+          </div>
+          <div class="actions" id="card-actions" hidden>
+            <button class="button secondary" id="download" type="button">Download PNG</button>
+            <button class="button secondary" id="share" type="button">Share</button>
+            <button class="button text-button" id="reset" type="button">Create another</button>
+          </div>
+          <p class="share-note" id="share-note" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div><strong>HH GOA 2026</strong><span>Builder ID Generator</span></div>
+      <p>Your photo is processed locally in your browser.</p>
+      <a href="#top">#FrameInGoa</a>
+    </footer>
+    <script src="app.js"></script>
+  </body>
+</html>
