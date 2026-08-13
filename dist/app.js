@@ -118,35 +118,31 @@ function drawCard(name, role, title) {
   // role(~36) + gap(64) → title at ~981
   // title(~36) + remaining(~219) → footer at 1272  ✓ no overlap possible
 
-  let cursor = photoAreaBottom + 70;  // 742 — clear gap below photo frame
-
-  // Orange accent bar — centered
+  // Orange accent bar — centered, just above name
   const accentW = 80;
   context.fillStyle = '#f35f32';
-  context.fillRect(CX - accentW / 2, cursor, accentW, 5);
-  cursor += 5 + 60;  // bar height + gap → name baseline at ~807
+  context.fillRect(CX - accentW / 2, 760, accentW, 5);
 
-  // ── NAME ──────────────────────────────────────────────────────────────────
+  // ── NAME — baseline at y=800 ──────────────────────────────────────────────
   const uppercaseName = name.toUpperCase();
   const nameSize = fitText(context, uppercaseName, CW - 40, 74, 36);
   context.textAlign = 'center';
   context.fillStyle = '#11120e';
   context.font = `800 ${nameSize}px Arial, sans-serif`;
-  context.fillText(uppercaseName, CX, cursor);
-  cursor += 68;  // gap to role
+  context.fillText(uppercaseName, CX, 800);
 
-  // ── ROLE ──────────────────────────────────────────────────────────────────
+  // ── ROLE — baseline at y=900 ──────────────────────────────────────────────
   context.fillStyle = '#45483f';
   context.font = '600 28px Arial, sans-serif';
   context.textAlign = 'center';
-  const roleExtraH = wrapTextCenter(context, role.toUpperCase(), CX, cursor, CW - 80, 38);
-  cursor += roleExtraH + 68;  // past wrapped lines + gap to title
+  const roleExtraH = wrapTextCenter(context, role.toUpperCase(), CX, 900, CW - 80, 38);
 
-  // ── BUILDER TITLE ─────────────────────────────────────────────────────────
+  // ── BUILDER TITLE — baseline at y=1010 (+ any role wrap overflow) ─────────
+  const titleY = 1010 + roleExtraH;
   context.fillStyle = '#11120e';
   context.font = '800 30px Arial, sans-serif';
   context.textAlign = 'center';
-  wrapTextCenter(context, title.toUpperCase(), CX, cursor, CW - 80, 38);
+  wrapTextCenter(context, title.toUpperCase(), CX, titleY, CW - 80, 38);
 
   // ── Footer ────────────────────────────────────────────────────────────────
   const footerLineY = 1272;
