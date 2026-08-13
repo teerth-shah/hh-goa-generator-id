@@ -33,66 +33,144 @@ const fitText = (ctx, text, maxWidth, start, min) => {
   return size;
 };
 function drawCard(name, role, title) {
-  const W = canvas.width, H = canvas.height, M = 78, CW = W - M * 2, CX = W / 2;
-  context.fillStyle = '#e5e2d7'; context.fillRect(0, 0, W, H);
-  context.fillStyle = '#f35f32'; context.fillRect(0, 0, W, 19);
-  context.fillStyle = '#11120e'; context.font = '800 28px Arial, sans-serif'; context.textAlign = 'left'; context.fillText('HH GOA 2026', M, 88);
-  context.textAlign = 'right'; context.font = '700 18px Arial, sans-serif'; context.fillStyle = '#45483f'; context.fillText('BUILDER ID / 2026', W - M, 86); context.textAlign = 'left';
-  context.fillStyle = '#11120e'; context.fillRect(M, 124, CW, 2);
+  const W = canvas.width;   // 1080
+  const H = canvas.height;  // 1350
+  const M = 72;             // left/right margin
+  const CW = W - M * 2;     // content width = 936
+  const CX = W / 2;         // horizontal centre = 540
 
-  // ── Photo block ────────────────────────────────────────────────
-  // Photo fills ~57% of card height, leaving a well-proportioned text zone below
-  const framePad = 10, photoSize = 600, outerSize = photoSize + framePad * 2;
-  const outerX = (W - outerSize) / 2, outerY = 148, photoX = outerX + framePad, photoY = outerY + framePad;
-  context.fillStyle = '#c9c8bc'; context.fillRect(outerX, outerY, outerSize, outerSize);
-  context.fillStyle = '#dedbd3'; context.fillRect(photoX, photoY, photoSize, photoSize);
-  const scale = Math.max(photoSize / photo.width, photoSize / photo.height);
-  context.drawImage(photo, photoX + (photoSize - photo.width * scale) / 2, photoY + (photoSize - photo.height * scale) / 2, photo.width * scale, photo.height * scale);
-  context.strokeStyle = '#b8b7ab'; context.lineWidth = 1; context.strokeRect(photoX, photoY, photoSize, photoSize);
+  // ── Background ──────────────────────────────────────────────────────────
+  context.fillStyle = '#e5e2d7';
+  context.fillRect(0, 0, W, H);
 
-  // ── Identity block — left-aligned, well below the photo ───────
-  // Photo bottom: 148 + 620 = 768  |  Footer line: 1264
-  // Available zone: 496px  →  spread name / role / title evenly
-  const identityStart = outerY + outerSize + 80;   // 80px air gap below photo
+  // ── Top orange stripe ───────────────────────────────────────────────────
+  context.fillStyle = '#f35f32';
+  context.fillRect(0, 0, W, 18);
 
-  // Orange accent bar — left-aligned at margin
-  context.fillStyle = '#f35f32'; context.fillRect(M, identityStart, 72, 5);
+  // ── Header row: HH GOA 2026 (left)  ·  BUILDER ID / 2026 (right) ───────
+  context.fillStyle = '#11120e';
+  context.font = '800 30px Arial, sans-serif';
+  context.textAlign = 'left';
+  context.fillText('HH GOA 2026', M, 82);
 
-  // Name — 52px below accent bar, left-aligned
-  const nameY = identityStart + 52;
-  const uppercaseName = name.toUpperCase(), nameSize = fitText(context, uppercaseName, CW, 76, 36);
-  context.textAlign = 'left'; context.fillStyle = '#11120e'; context.font = `800 ${nameSize}px Arial, sans-serif`;
-  context.fillText(uppercaseName, M, nameY);
+  context.fillStyle = '#45483f';
+  context.font = '600 17px Arial, sans-serif';
+  context.textAlign = 'right';
+  context.fillText('BUILDER ID / 2026', W - M, 80);
 
-  // Role — 68px below name baseline, left-aligned
-  const roleY = nameY + 68;
-  context.fillStyle = '#45483f'; context.font = '700 28px Arial, sans-serif'; context.textAlign = 'left';
-  const roleLines = role.toUpperCase().split(/\s+/);
-  // simple left-aligned wrap
-  let rLine = '', rY = roleY;
-  roleLines.forEach((word, i) => {
-    const test = rLine ? `${rLine} ${word}` : word;
-    if (context.measureText(test).width > CW && rLine) { context.fillText(rLine, M, rY); rY += 38; rLine = word; }
-    else rLine = test;
-    if (i === roleLines.length - 1) context.fillText(rLine, M, rY);
-  });
-  const roleOffset = rY - roleY;  // extra height used by wrapped lines
+  // ── First horizontal divider ─────────────────────────────────────────────
+  context.fillStyle = '#11120e';
+  context.fillRect(M, 104, CW, 2);
 
-  // Title — 68px below role baseline, left-aligned
-  const titleY = roleY + roleOffset + 68;
-  context.fillStyle = '#11120e'; context.font = '800 30px Arial, sans-serif'; context.textAlign = 'left';
-  let tLine = '', tY = titleY;
-  title.toUpperCase().split(/\s+/).forEach((word, i, arr) => {
-    const test = tLine ? `${tLine} ${word}` : word;
-    if (context.measureText(test).width > CW && tLine) { context.fillText(tLine, M, tY); tY += 40; tLine = word; }
-    else tLine = test;
-    if (i === arr.length - 1) context.fillText(tLine, M, tY);
-  });
+  // ── #FRAMEINGOA label ────────────────────────────────────────────────────
+  context.fillStyle = '#f35f32';
+  context.font = '800 28px Arial, sans-serif';
+  context.textAlign = 'right';
+  context.fillText('#FRAMEINGOA', W - M, 152);
 
-  // ── Footer ─────────────────────────────────────────────────────
-  context.textAlign = 'left'; context.fillStyle = '#11120e'; context.fillRect(M, 1264, CW, 2);
-  context.fillStyle = '#45483f'; context.font = '700 18px Arial, sans-serif'; context.fillText('BUILD · SHIP · LAUNCH', M, 1306);
-  context.textAlign = 'right'; context.fillStyle = '#11120e'; context.font = '800 20px Arial, sans-serif'; context.fillText('#FrameInGoa', W - M, 1306); context.textAlign = 'left';
+  context.fillStyle = '#11120e';
+  context.font = '700 20px Arial, sans-serif';
+  context.textAlign = 'left';
+  context.fillText('HH GOA 2026 · BUILDER PASS', M, 152);
+
+  // ── Second horizontal divider ────────────────────────────────────────────
+  context.fillStyle = '#c9c8bc';
+  context.fillRect(M, 172, CW, 2);
+
+  // ── Photo block ───────────────────────────────────────────────────────────
+  const photoAreaTop  = 192;   // starts below second divider
+  const photoSize     = 560;   // square crop
+  const framePad      = 10;
+  const outerSize     = photoSize + framePad * 2;
+  const outerX        = (W - outerSize) / 2;
+  const outerY        = photoAreaTop;
+  const photoX        = outerX + framePad;
+  const photoY        = outerY + framePad;
+
+  // frame background
+  context.fillStyle = '#c9c8bc';
+  context.fillRect(outerX, outerY, outerSize, outerSize);
+  // photo background (in case image doesn't fully cover)
+  context.fillStyle = '#dedbd3';
+  context.fillRect(photoX, photoY, photoSize, photoSize);
+  // draw photo — cover-crop to the square
+  const sc = Math.max(photoSize / photo.width, photoSize / photo.height);
+  context.save();
+  context.beginPath();
+  context.rect(photoX, photoY, photoSize, photoSize);
+  context.clip();
+  context.drawImage(
+    photo,
+    photoX + (photoSize - photo.width  * sc) / 2,
+    photoY + (photoSize - photo.height * sc) / 2,
+    photo.width  * sc,
+    photo.height * sc
+  );
+  context.restore();
+  context.strokeStyle = '#b8b7ab';
+  context.lineWidth = 1;
+  context.strokeRect(photoX, photoY, photoSize, photoSize);
+
+  // photoAreaBottom is the y-coordinate immediately after the frame
+  const photoAreaBottom = outerY + outerSize; // 192 + 580 = 772
+
+  // ── Identity block ────────────────────────────────────────────────────────
+  // Available vertical space between photo and footer divider:
+  //   footer divider at y=1268  →  772…1268 = 496px for accent + name + role + title
+  // Budget: accent(5) + gap(44) + name(~80) + gap(52) + role(~36) + gap(52) + title(~36) = ~305px
+  // That leaves ~190px of comfortable air above the footer — perfect.
+
+  let cursor = photoAreaBottom + 56;  // 56px gap below photo before accent bar
+
+  // Orange accent bar — centered
+  const accentW = 80;
+  context.fillStyle = '#f35f32';
+  context.fillRect(CX - accentW / 2, cursor, accentW, 5);
+  cursor += 5;
+
+  // ── NAME ──────────────────────────────────────────────────────────────────
+  cursor += 52;   // gap below accent bar
+  const uppercaseName = name.toUpperCase();
+  const nameSize = fitText(context, uppercaseName, CW - 40, 74, 36);
+  context.textAlign = 'center';
+  context.fillStyle = '#11120e';
+  context.font = `800 ${nameSize}px Arial, sans-serif`;
+  context.fillText(uppercaseName, CX, cursor);
+  cursor += 10;   // small padding below name baseline before role
+
+  // ── ROLE ──────────────────────────────────────────────────────────────────
+  cursor += 52;   // gap between name and role
+  context.fillStyle = '#45483f';
+  context.font = '600 26px Arial, sans-serif';
+  context.textAlign = 'center';
+  const roleExtraH = wrapTextCenter(context, role.toUpperCase(), CX, cursor, CW - 80, 36);
+  cursor += roleExtraH + 10;   // move cursor past any wrapped lines
+
+  // ── BUILDER TITLE ─────────────────────────────────────────────────────────
+  cursor += 48;   // gap between role and title
+  context.fillStyle = '#11120e';
+  context.font = '800 28px Arial, sans-serif';
+  context.textAlign = 'center';
+  wrapTextCenter(context, title.toUpperCase(), CX, cursor, CW - 80, 36);
+
+  // ── Footer ────────────────────────────────────────────────────────────────
+  const footerLineY = 1272;
+  const footerTextY = 1314;
+
+  context.textAlign = 'left';
+  context.fillStyle = '#11120e';
+  context.fillRect(M, footerLineY, CW, 2);
+
+  context.fillStyle = '#45483f';
+  context.font = '700 18px Arial, sans-serif';
+  context.fillText('BUILD · SHIP · LAUNCH', M, footerTextY);
+
+  context.textAlign = 'right';
+  context.fillStyle = '#11120e';
+  context.font = '800 20px Arial, sans-serif';
+  context.fillText('#FrameInGoa', W - M, footerTextY);
+
+  context.textAlign = 'left';
 }
 function readPhoto(file) {
   formError.textContent = ''; shareNote.textContent = '';
