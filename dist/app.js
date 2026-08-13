@@ -32,26 +32,32 @@ const fitText = (ctx, text, maxWidth, start, min) => {
   return size;
 };
 function drawCard(name, role, title) {
-  const W = canvas.width, H = canvas.height;
+  const W = canvas.width, H = canvas.height, M = 78, CW = W - M * 2;
   context.fillStyle = '#e5e2d7'; context.fillRect(0, 0, W, H);
   context.fillStyle = '#f35f32'; context.fillRect(0, 0, W, 19);
-  context.fillStyle = '#11120e'; context.font = '800 28px Arial, sans-serif'; context.fillText('HH GOA 2026', 78, 84);
-  context.textAlign = 'right'; context.font = '700 18px Arial, sans-serif'; context.fillStyle = '#45483f'; context.fillText('BUILDER ID / 2026', 1002, 82); context.textAlign = 'left';
-  context.fillStyle = '#11120e'; context.fillRect(78, 118, 924, 2);
-  const photoSize = 610, photoX = (W - photoSize) / 2, photoY = 166;
-  context.fillStyle = '#c9c8bc'; context.fillRect(photoX - 12, photoY - 12, photoSize + 24, photoSize + 24);
+  context.fillStyle = '#11120e'; context.font = '800 28px Arial, sans-serif'; context.textAlign = 'left'; context.fillText('HH GOA 2026', M, 88);
+  context.textAlign = 'right'; context.font = '700 18px Arial, sans-serif'; context.fillStyle = '#45483f'; context.fillText('BUILDER ID / 2026', W - M, 86); context.textAlign = 'left';
+  context.fillStyle = '#11120e'; context.fillRect(M, 124, CW, 2);
+  const framePad = 10, photoSize = 544, outerSize = photoSize + framePad * 2;
+  const outerX = (W - outerSize) / 2, outerY = 156, photoX = outerX + framePad, photoY = outerY + framePad;
+  context.fillStyle = '#c9c8bc'; context.fillRect(outerX, outerY, outerSize, outerSize);
   context.fillStyle = '#dedbd3'; context.fillRect(photoX, photoY, photoSize, photoSize);
-  const photoW = photoSize, photoH = photoSize;
-  const scale = Math.max(photoW / photo.width, photoH / photo.height); const width = photo.width * scale, height = photo.height * scale;
-  context.drawImage(photo, photoX + (photoW - width) / 2, photoY + (photoH - height) / 2, width, height);
-  context.fillStyle = '#f35f32'; context.fillRect(78, 842, 108, 8);
-  const uppercaseName = name.toUpperCase(); const nameSize = fitText(context, uppercaseName, 924, 76, 40);
-  context.fillStyle = '#11120e'; context.font = `800 ${nameSize}px Arial, sans-serif`; context.fillText(uppercaseName, 78, 936);
-  context.fillStyle = '#45483f'; context.font = '700 25px Arial, sans-serif'; wrapText(context, role.toUpperCase(), 78, 990, 900, 34);
-  context.fillStyle = '#11120e'; context.font = '800 27px Arial, sans-serif'; wrapText(context, title.toUpperCase(), 78, 1092, 900, 34);
-  context.fillStyle = '#11120e'; context.fillRect(78, 1198, 924, 2);
-  context.fillStyle = '#45483f'; context.font = '700 18px Arial, sans-serif'; context.fillText('BUILD · SHIP · LAUNCH', 78, 1240);
-  context.textAlign = 'right'; context.fillStyle = '#11120e'; context.font = '800 20px Arial, sans-serif'; context.fillText('#FrameInGoa', 1002, 1240); context.textAlign = 'left';
+  const scale = Math.max(photoSize / photo.width, photoSize / photo.height);
+  context.drawImage(photo, photoX + (photoSize - photo.width * scale) / 2, photoY + (photoSize - photo.height * scale) / 2, photo.width * scale, photo.height * scale);
+  context.strokeStyle = '#b8b7ab'; context.lineWidth = 1; context.strokeRect(photoX, photoY, photoSize, photoSize);
+  const identityStart = outerY + outerSize + 60;
+  context.fillStyle = '#f35f32'; context.fillRect(M, identityStart, 96, 6);
+  const nameY = identityStart + 52;
+  const uppercaseName = name.toUpperCase(), nameSize = fitText(context, uppercaseName, CW, 72, 38);
+  context.fillStyle = '#11120e'; context.font = `800 ${nameSize}px Arial, sans-serif`; context.fillText(uppercaseName, M, nameY);
+  const roleY = nameY + 42;
+  context.fillStyle = '#45483f'; context.font = '700 24px Arial, sans-serif';
+  const roleOffset = wrapText(context, role.toUpperCase(), M, roleY, CW - 24, 32);
+  const titleY = roleY + roleOffset + 34;
+  context.fillStyle = '#11120e'; context.font = '800 26px Arial, sans-serif'; wrapText(context, title.toUpperCase(), M, titleY, CW - 24, 32);
+  context.fillStyle = '#11120e'; context.fillRect(M, 1194, CW, 2);
+  context.fillStyle = '#45483f'; context.font = '700 18px Arial, sans-serif'; context.fillText('BUILD · SHIP · LAUNCH', M, 1236);
+  context.textAlign = 'right'; context.fillStyle = '#11120e'; context.font = '800 20px Arial, sans-serif'; context.fillText('#FrameInGoa', W - M, 1236); context.textAlign = 'left';
 }
 function readPhoto(file) {
   formError.textContent = ''; shareNote.textContent = '';
@@ -86,7 +92,12 @@ photoInput.addEventListener('change', event => readPhoto(event.target.files[0]))
 ['dragleave','drop'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.remove('dragover'); }));
 dropzone.addEventListener('drop', event => readPhoto(event.dataTransfer.files[0]));
 form.addEventListener('submit', event => { event.preventDefault(); const name = form.elements.name.value.trim(), role = form.elements.role.value.trim(); const title = form.elements.title.value.trim() || titleFor(role); if (!photo || !name || !role) { formError.textContent = 'Add a photo, name and role before generating your card.'; return; } if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(name)) { formError.textContent = 'Enter a valid name using letters only. Numbers are not allowed.'; form.elements.name.focus(); return; } form.elements.name.value = name.replace(/\s+/g, ' '); form.elements.title.value = title; drawCard(form.elements.name.value, role, title); previewEmpty.hidden = true; actions.hidden = false; cardReady = true; shareNote.textContent = 'Card ready to download or share.'; });
+const FRAME_IN_GOA = '#FrameInGoa';
+const xShareCaption = () => `Here's a look at my HH Goa 2026 Builder ID!\n\n${FRAME_IN_GOA}`;
 function exportCard() { return new Promise(resolve => canvas.toBlob(resolve, 'image/png')); }
-document.querySelector('#download').addEventListener('click', async () => { const blob = await exportCard(); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'hh-goa-2026-builder-id.png'; link.click(); URL.revokeObjectURL(link.href); });
-document.querySelector('#share').addEventListener('click', async () => { if (!cardReady) return; const caption = 'Building, shipping, and creating at HH Goa 2026.\n\n#FrameInGoa'; const blob = await exportCard(); const file = new File([blob], 'hh-goa-2026-builder-id.png', { type:'image/png' }); if (navigator.canShare && navigator.canShare({ files:[file] })) { try { await navigator.share({ title:'My HH Goa 2026 Builder ID', text:caption, files:[file] }); return; } catch (error) { if (error.name === 'AbortError') return; } } const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = file.name; link.click(); URL.revokeObjectURL(link.href); window.open(`https://x.com/intent/post?text=${encodeURIComponent(caption)}`, '_blank', 'noopener,noreferrer'); shareNote.textContent = 'Your card was downloaded. Add it to the X post that just opened.'; });
+async function cardFile() { const blob = await exportCard(); return { blob, file: new File([blob], 'hh-goa-2026-builder-id.png', { type: 'image/png' }) }; }
+function downloadBlob(blob, name) { const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = name; link.click(); URL.revokeObjectURL(link.href); }
+document.querySelector('#download').addEventListener('click', async () => { const { blob } = await cardFile(); downloadBlob(blob, 'hh-goa-2026-builder-id.png'); });
+document.querySelector('#share').addEventListener('click', async () => { if (!cardReady) return; const caption = `Building, shipping, and creating at HH Goa 2026.\n\n${FRAME_IN_GOA}`; const { blob, file } = await cardFile(); if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ title: 'My HH Goa 2026 Builder ID', text: caption, files: [file] }); return; } catch (error) { if (error.name === 'AbortError') return; } } downloadBlob(blob, file.name); window.open(`https://x.com/intent/post?text=${encodeURIComponent(caption)}`, '_blank', 'noopener,noreferrer'); shareNote.textContent = 'Your card was downloaded. Add it to the X post that just opened.'; });
+document.querySelector('#share-x').addEventListener('click', async () => { if (!cardReady) return; const caption = xShareCaption(); const { blob, file } = await cardFile(); if (navigator.canShare && navigator.canShare({ files: [file], text: caption })) { try { await navigator.share({ title: 'My HH Goa 2026 Builder ID', text: caption, files: [file] }); shareNote.textContent = `${FRAME_IN_GOA} is included in your post.`; return; } catch (error) { if (error.name === 'AbortError') return; } } let copied = false; if (navigator.clipboard?.write && typeof ClipboardItem !== 'undefined') { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); copied = true; } catch { /* clipboard unavailable */ } } downloadBlob(blob, file.name); window.open(`https://x.com/intent/post?text=${encodeURIComponent(caption)}`, '_blank', 'noopener,noreferrer'); shareNote.textContent = copied ? `Image copied to clipboard. Paste it into X — ${FRAME_IN_GOA} is in the caption.` : `Your card was downloaded. Attach the PNG to X — ${FRAME_IN_GOA} is in the caption.`; });
 document.querySelector('#reset').addEventListener('click', () => { form.reset(); photo = null; cardReady = false; context.clearRect(0,0,canvas.width,canvas.height); previewEmpty.hidden = false; actions.hidden = true; fileName.textContent = ''; formError.textContent = ''; shareNote.textContent = ''; document.querySelector('#create').scrollIntoView({ behavior:'smooth', block:'start' }); });
