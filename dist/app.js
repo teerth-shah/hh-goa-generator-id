@@ -78,22 +78,20 @@ function drawCard(name, role, title) {
   context.fillRect(M, 172, CW, 2);
 
   // ── Photo block ───────────────────────────────────────────────────────────
-  const photoAreaTop  = 192;   // starts below second divider
-  const photoSize     = 560;   // square crop
+  const photoAreaTop  = 192;
+  const photoSize     = 460;   // 460px square — leaves ~560px below for text
   const framePad      = 10;
-  const outerSize     = photoSize + framePad * 2;
+  const outerSize     = photoSize + framePad * 2;   // 480
   const outerX        = (W - outerSize) / 2;
-  const outerY        = photoAreaTop;
+  const outerY        = photoAreaTop;               // 192
   const photoX        = outerX + framePad;
   const photoY        = outerY + framePad;
+  // photoAreaBottom = 192 + 480 = 672
 
-  // frame background
   context.fillStyle = '#c9c8bc';
   context.fillRect(outerX, outerY, outerSize, outerSize);
-  // photo background (in case image doesn't fully cover)
   context.fillStyle = '#dedbd3';
   context.fillRect(photoX, photoY, photoSize, photoSize);
-  // draw photo — cover-crop to the square
   const sc = Math.max(photoSize / photo.width, photoSize / photo.height);
   context.save();
   context.beginPath();
@@ -111,47 +109,44 @@ function drawCard(name, role, title) {
   context.lineWidth = 1;
   context.strokeRect(photoX, photoY, photoSize, photoSize);
 
-  // photoAreaBottom is the y-coordinate immediately after the frame
-  const photoAreaBottom = outerY + outerSize; // 192 + 580 = 772
+  const photoAreaBottom = outerY + outerSize;  // 672 — guaranteed bottom of photo frame
 
   // ── Identity block ────────────────────────────────────────────────────────
-  // Available vertical space between photo and footer divider:
-  //   footer divider at y=1268  →  772…1268 = 496px for accent + name + role + title
-  // Budget: accent(5) + gap(44) + name(~80) + gap(52) + role(~36) + gap(52) + title(~36) = ~305px
-  // That leaves ~190px of comfortable air above the footer — perfect.
+  // photoAreaBottom = 672  |  footerLineY = 1272  |  available = 600px
+  // accent(5) + gap(55) = 60 → name at ~732
+  // name(~85) + gap(64) → role at ~881
+  // role(~36) + gap(64) → title at ~981
+  // title(~36) + remaining(~219) → footer at 1272  ✓ no overlap possible
 
-  let cursor = photoAreaBottom + 56;  // 56px gap below photo before accent bar
+  let cursor = photoAreaBottom + 70;  // 742 — clear gap below photo frame
 
   // Orange accent bar — centered
   const accentW = 80;
   context.fillStyle = '#f35f32';
   context.fillRect(CX - accentW / 2, cursor, accentW, 5);
-  cursor += 5;
+  cursor += 5 + 60;  // bar height + gap → name baseline at ~807
 
   // ── NAME ──────────────────────────────────────────────────────────────────
-  cursor += 52;   // gap below accent bar
   const uppercaseName = name.toUpperCase();
   const nameSize = fitText(context, uppercaseName, CW - 40, 74, 36);
   context.textAlign = 'center';
   context.fillStyle = '#11120e';
   context.font = `800 ${nameSize}px Arial, sans-serif`;
   context.fillText(uppercaseName, CX, cursor);
-  cursor += 10;   // small padding below name baseline before role
+  cursor += 68;  // gap to role
 
   // ── ROLE ──────────────────────────────────────────────────────────────────
-  cursor += 52;   // gap between name and role
   context.fillStyle = '#45483f';
-  context.font = '600 26px Arial, sans-serif';
+  context.font = '600 28px Arial, sans-serif';
   context.textAlign = 'center';
-  const roleExtraH = wrapTextCenter(context, role.toUpperCase(), CX, cursor, CW - 80, 36);
-  cursor += roleExtraH + 10;   // move cursor past any wrapped lines
+  const roleExtraH = wrapTextCenter(context, role.toUpperCase(), CX, cursor, CW - 80, 38);
+  cursor += roleExtraH + 68;  // past wrapped lines + gap to title
 
   // ── BUILDER TITLE ─────────────────────────────────────────────────────────
-  cursor += 48;   // gap between role and title
   context.fillStyle = '#11120e';
-  context.font = '800 28px Arial, sans-serif';
+  context.font = '800 30px Arial, sans-serif';
   context.textAlign = 'center';
-  wrapTextCenter(context, title.toUpperCase(), CX, cursor, CW - 80, 36);
+  wrapTextCenter(context, title.toUpperCase(), CX, cursor, CW - 80, 38);
 
   // ── Footer ────────────────────────────────────────────────────────────────
   const footerLineY = 1272;
