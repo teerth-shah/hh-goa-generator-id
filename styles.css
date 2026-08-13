@@ -34,7 +34,7 @@ legend,.field label { display:block; font-size:12px; font-weight:800; letter-spa
 .dropzone-title { font-weight:650; }
 .dropzone-copy,.hint,.file-name,.share-note { color:var(--muted); font-size:13px; }
 .dropzone-copy { margin-top:4px; }
-.choose-button { background:var(--sea); border:1px solid var(--sea); border-radius:0; color:#11120e; font-size:12px; font-weight:900; margin-top:17px; padding:8px 12px; text-transform:uppercase; transition:background .16s ease, transform .16s ease; }
+.choose-button { background:var(--sea); border:1px solid var(--sea); border-radius:0; color:#11120e; cursor:pointer; font-size:12px; font-weight:900; margin-top:17px; padding:8px 12px; text-transform:uppercase; transition:background .16s ease, transform .16s ease; }
 .dropzone:hover .choose-button { background:#e4ff77; transform:translateY(-1px); }
 .file-name { min-height:20px; margin:8px 0 0; }
 .field { margin-top:20px; }

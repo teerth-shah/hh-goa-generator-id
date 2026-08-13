@@ -1,5 +1,7 @@
 const form = document.querySelector('#builder-form');
 const photoInput = document.querySelector('#photo-input');
+const choosePhoto = document.querySelector('#choose-photo');
+const nameInput = document.querySelector('#name');
 const dropzone = document.querySelector('#dropzone');
 const fileName = document.querySelector('#file-name');
 const canvas = document.querySelector('#builder-canvas');
@@ -60,11 +62,30 @@ function readPhoto(file) {
   reader.onload = () => { const image = new Image(); image.onload = () => { photo = image; fileName.textContent = file.name; }; image.onerror = () => { formError.textContent = 'This browser cannot read that HEIC/HEIF file. Please choose a JPG or PNG.'; }; image.src = reader.result; };
   reader.readAsDataURL(file);
 }
+function openPhotoPicker() { photoInput.click(); }
+choosePhoto.addEventListener('click', openPhotoPicker);
+dropzone.addEventListener('click', event => { if (!event.target.closest('button')) openPhotoPicker(); });
+const sanitizeName = value => value.replace(/[^A-Za-z\s'-]/g, '').replace(/\s{2,}/g, ' ');
+nameInput.addEventListener('beforeinput', event => {
+  if (event.data && sanitizeName(event.data) !== event.data) event.preventDefault();
+});
+nameInput.addEventListener('paste', event => {
+  event.preventDefault();
+  const text = sanitizeName(event.clipboardData.getData('text'));
+  const start = nameInput.selectionStart;
+  const end = nameInput.selectionEnd;
+  nameInput.setRangeText(text, start, end, 'end');
+  nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+});
+nameInput.addEventListener('input', () => {
+  const cleanName = sanitizeName(nameInput.value);
+  if (nameInput.value !== cleanName) nameInput.value = cleanName;
+});
 photoInput.addEventListener('change', event => readPhoto(event.target.files[0]));
 ['dragenter','dragover'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.add('dragover'); }));
 ['dragleave','drop'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.remove('dragover'); }));
 dropzone.addEventListener('drop', event => readPhoto(event.dataTransfer.files[0]));
-form.addEventListener('submit', event => { event.preventDefault(); const name = form.elements.name.value.trim(), role = form.elements.role.value.trim(); const title = form.elements.title.value.trim() || titleFor(role); if (!photo || !name || !role) { formError.textContent = 'Add a photo, name and role before generating your card.'; return; } form.elements.title.value = title; drawCard(name, role, title); previewEmpty.hidden = true; actions.hidden = false; cardReady = true; shareNote.textContent = 'Card ready to download or share.'; });
+form.addEventListener('submit', event => { event.preventDefault(); const name = form.elements.name.value.trim(), role = form.elements.role.value.trim(); const title = form.elements.title.value.trim() || titleFor(role); if (!photo || !name || !role) { formError.textContent = 'Add a photo, name and role before generating your card.'; return; } if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(name)) { formError.textContent = 'Enter a valid name using letters only. Numbers are not allowed.'; form.elements.name.focus(); return; } form.elements.name.value = name.replace(/\s+/g, ' '); form.elements.title.value = title; drawCard(form.elements.name.value, role, title); previewEmpty.hidden = true; actions.hidden = false; cardReady = true; shareNote.textContent = 'Card ready to download or share.'; });
 function exportCard() { return new Promise(resolve => canvas.toBlob(resolve, 'image/png')); }
 document.querySelector('#download').addEventListener('click', async () => { const blob = await exportCard(); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'hh-goa-2026-builder-id.png'; link.click(); URL.revokeObjectURL(link.href); });
 document.querySelector('#share').addEventListener('click', async () => { if (!cardReady) return; const caption = 'Building, shipping, and creating at HH Goa 2026.\n\n#FrameInGoa'; const blob = await exportCard(); const file = new File([blob], 'hh-goa-2026-builder-id.png', { type:'image/png' }); if (navigator.canShare && navigator.canShare({ files:[file] })) { try { await navigator.share({ title:'My HH Goa 2026 Builder ID', text:caption, files:[file] }); return; } catch (error) { if (error.name === 'AbortError') return; } } const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = file.name; link.click(); URL.revokeObjectURL(link.href); window.open(`https://x.com/intent/post?text=${encodeURIComponent(caption)}`, '_blank', 'noopener,noreferrer'); shareNote.textContent = 'Your card was downloaded. Add it to the X post that just opened.'; });
