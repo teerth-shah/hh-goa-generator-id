@@ -41,8 +41,9 @@ function drawCard(name, role, title) {
   context.fillStyle = '#11120e'; context.fillRect(M, 124, CW, 2);
 
   // ── Photo block ────────────────────────────────────────────────
-  const framePad = 10, photoSize = 430, outerSize = photoSize + framePad * 2;
-  const outerX = (W - outerSize) / 2, outerY = 160, photoX = outerX + framePad, photoY = outerY + framePad;
+  // Photo fills ~57% of card height, leaving a well-proportioned text zone below
+  const framePad = 10, photoSize = 600, outerSize = photoSize + framePad * 2;
+  const outerX = (W - outerSize) / 2, outerY = 148, photoX = outerX + framePad, photoY = outerY + framePad;
   context.fillStyle = '#c9c8bc'; context.fillRect(outerX, outerY, outerSize, outerSize);
   context.fillStyle = '#dedbd3'; context.fillRect(photoX, photoY, photoSize, photoSize);
   const scale = Math.max(photoSize / photo.width, photoSize / photo.height);
@@ -50,25 +51,28 @@ function drawCard(name, role, title) {
   context.strokeStyle = '#b8b7ab'; context.lineWidth = 1; context.strokeRect(photoX, photoY, photoSize, photoSize);
 
   // ── Identity block ─────────────────────────────────────────────
-  const identityStart = outerY + outerSize + 90;  // more air above the accent bar
+  // Photo bottom: outerY + outerSize = 148 + 620 = 768
+  // Footer line: 1264  →  available zone: 768 … 1264 = 496px
+  // Distribute: accent at +60, name at +120, role at +200, title at +280
+  const identityStart = outerY + outerSize + 60;
   const accentW = 88;
   context.fillStyle = '#f35f32'; context.fillRect(CX - accentW / 2, identityStart, accentW, 5);
 
-  // Name
-  const nameY = identityStart + 80;               // generous gap below accent
+  // Name — sits 60px below accent bar
+  const nameY = identityStart + 60;
   const uppercaseName = name.toUpperCase(), nameSize = fitText(context, uppercaseName, CW - 48, 72, 36);
   context.textAlign = 'center'; context.fillStyle = '#11120e'; context.font = `800 ${nameSize}px Arial, sans-serif`;
   context.fillText(uppercaseName, CX, nameY);
 
-  // Role
-  const roleY = nameY + 64;                        // was +44 — more space between name & role
-  context.fillStyle = '#45483f'; context.font = '700 26px Arial, sans-serif';
-  const roleOffset = wrapTextCenter(context, role.toUpperCase(), CX, roleY, CW - 80, 36);
+  // Role — 72px below name baseline
+  const roleY = nameY + 72;
+  context.fillStyle = '#45483f'; context.font = '700 28px Arial, sans-serif';
+  const roleOffset = wrapTextCenter(context, role.toUpperCase(), CX, roleY, CW - 80, 38);
 
-  // Title
-  const titleY = roleY + roleOffset + 60;          // was +38 — more space between role & title
-  context.fillStyle = '#11120e'; context.font = '800 28px Arial, sans-serif';
-  wrapTextCenter(context, title.toUpperCase(), CX, titleY, CW - 80, 36);
+  // Title — 72px below role baseline (+ any extra lines from wrap)
+  const titleY = roleY + roleOffset + 72;
+  context.fillStyle = '#11120e'; context.font = '800 30px Arial, sans-serif';
+  wrapTextCenter(context, title.toUpperCase(), CX, titleY, CW - 80, 38);
 
   // ── Footer ─────────────────────────────────────────────────────
   context.textAlign = 'left'; context.fillStyle = '#11120e'; context.fillRect(M, 1264, CW, 2);
