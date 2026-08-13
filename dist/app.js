@@ -21,10 +21,11 @@ const titleFor = role => {
   if (value.includes('web') || value.includes('frontend')) return 'THE WEB BUILDER';
   return 'THE GOA BUILDER';
 };
-const wrapText = (ctx, text, x, y, maxWidth, lineHeight) => {
-  const words = text.split(/\s+/); let line = ''; let offset = 0;
-  words.forEach((word, index) => { const next = `${line}${line ? ' ' : ''}${word}`; if (ctx.measureText(next).width > maxWidth && line) { ctx.fillText(line, x, y + offset); offset += lineHeight; line = word; } else line = next; if (index === words.length - 1) ctx.fillText(line, x, y + offset); });
-  return offset;
+const wrapTextCenter = (ctx, text, centerX, y, maxWidth, lineHeight) => {
+  ctx.textAlign = 'center'; const words = text.split(/\s+/); let line = ''; const lines = [];
+  words.forEach((word, index) => { const next = `${line}${line ? ' ' : ''}${word}`; if (ctx.measureText(next).width > maxWidth && line) { lines.push(line); line = word; } else line = next; if (index === words.length - 1) lines.push(line); });
+  lines.forEach((ln, index) => ctx.fillText(ln, centerX, y + index * lineHeight));
+  return (lines.length - 1) * lineHeight;
 };
 const fitText = (ctx, text, maxWidth, start, min) => {
   let size = start;
@@ -32,30 +33,31 @@ const fitText = (ctx, text, maxWidth, start, min) => {
   return size;
 };
 function drawCard(name, role, title) {
-  const W = canvas.width, H = canvas.height, M = 78, CW = W - M * 2;
+  const W = canvas.width, H = canvas.height, M = 78, CW = W - M * 2, CX = W / 2;
   context.fillStyle = '#e5e2d7'; context.fillRect(0, 0, W, H);
   context.fillStyle = '#f35f32'; context.fillRect(0, 0, W, 19);
   context.fillStyle = '#11120e'; context.font = '800 28px Arial, sans-serif'; context.textAlign = 'left'; context.fillText('HH GOA 2026', M, 88);
   context.textAlign = 'right'; context.font = '700 18px Arial, sans-serif'; context.fillStyle = '#45483f'; context.fillText('BUILDER ID / 2026', W - M, 86); context.textAlign = 'left';
   context.fillStyle = '#11120e'; context.fillRect(M, 124, CW, 2);
-  const framePad = 10, photoSize = 544, outerSize = photoSize + framePad * 2;
-  const outerX = (W - outerSize) / 2, outerY = 156, photoX = outerX + framePad, photoY = outerY + framePad;
+  const framePad = 10, photoSize = 520, outerSize = photoSize + framePad * 2;
+  const outerX = (W - outerSize) / 2, outerY = 148, photoX = outerX + framePad, photoY = outerY + framePad;
   context.fillStyle = '#c9c8bc'; context.fillRect(outerX, outerY, outerSize, outerSize);
   context.fillStyle = '#dedbd3'; context.fillRect(photoX, photoY, photoSize, photoSize);
   const scale = Math.max(photoSize / photo.width, photoSize / photo.height);
   context.drawImage(photo, photoX + (photoSize - photo.width * scale) / 2, photoY + (photoSize - photo.height * scale) / 2, photo.width * scale, photo.height * scale);
   context.strokeStyle = '#b8b7ab'; context.lineWidth = 1; context.strokeRect(photoX, photoY, photoSize, photoSize);
-  const identityStart = outerY + outerSize + 60;
-  context.fillStyle = '#f35f32'; context.fillRect(M, identityStart, 96, 6);
-  const nameY = identityStart + 52;
-  const uppercaseName = name.toUpperCase(), nameSize = fitText(context, uppercaseName, CW, 72, 38);
-  context.fillStyle = '#11120e'; context.font = `800 ${nameSize}px Arial, sans-serif`; context.fillText(uppercaseName, M, nameY);
-  const roleY = nameY + 42;
+  const identityStart = outerY + outerSize + 76;
+  const accentW = 88;
+  context.fillStyle = '#f35f32'; context.fillRect(CX - accentW / 2, identityStart, accentW, 5);
+  const nameY = identityStart + 50;
+  const uppercaseName = name.toUpperCase(), nameSize = fitText(context, uppercaseName, CW - 48, 68, 36);
+  context.textAlign = 'center'; context.fillStyle = '#11120e'; context.font = `800 ${nameSize}px Arial, sans-serif`; context.fillText(uppercaseName, CX, nameY);
+  const roleY = nameY + 44;
   context.fillStyle = '#45483f'; context.font = '700 24px Arial, sans-serif';
-  const roleOffset = wrapText(context, role.toUpperCase(), M, roleY, CW - 24, 32);
-  const titleY = roleY + roleOffset + 34;
-  context.fillStyle = '#11120e'; context.font = '800 26px Arial, sans-serif'; wrapText(context, title.toUpperCase(), M, titleY, CW - 24, 32);
-  context.fillStyle = '#11120e'; context.fillRect(M, 1194, CW, 2);
+  const roleOffset = wrapTextCenter(context, role.toUpperCase(), CX, roleY, CW - 80, 32);
+  const titleY = roleY + roleOffset + 38;
+  context.fillStyle = '#11120e'; context.font = '800 26px Arial, sans-serif'; wrapTextCenter(context, title.toUpperCase(), CX, titleY, CW - 80, 32);
+  context.textAlign = 'left'; context.fillStyle = '#11120e'; context.fillRect(M, 1194, CW, 2);
   context.fillStyle = '#45483f'; context.font = '700 18px Arial, sans-serif'; context.fillText('BUILD · SHIP · LAUNCH', M, 1236);
   context.textAlign = 'right'; context.fillStyle = '#11120e'; context.font = '800 20px Arial, sans-serif'; context.fillText('#FrameInGoa', W - M, 1236); context.textAlign = 'left';
 }
@@ -91,7 +93,7 @@ photoInput.addEventListener('change', event => readPhoto(event.target.files[0]))
 ['dragenter','dragover'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.add('dragover'); }));
 ['dragleave','drop'].forEach(type => dropzone.addEventListener(type, event => { event.preventDefault(); dropzone.classList.remove('dragover'); }));
 dropzone.addEventListener('drop', event => readPhoto(event.dataTransfer.files[0]));
-form.addEventListener('submit', event => { event.preventDefault(); const name = form.elements.name.value.trim(), role = form.elements.role.value.trim(); const title = form.elements.title.value.trim() || titleFor(role); if (!photo || !name || !role) { formError.textContent = 'Add a photo, name and role before generating your card.'; return; } if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(name)) { formError.textContent = 'Enter a valid name using letters only. Numbers are not allowed.'; form.elements.name.focus(); return; } form.elements.name.value = name.replace(/\s+/g, ' '); form.elements.title.value = title; drawCard(form.elements.name.value, role, title); previewEmpty.hidden = true; actions.hidden = false; cardReady = true; shareNote.textContent = 'Card ready to download or share.'; });
+form.addEventListener('submit', event => { event.preventDefault(); const name = form.elements.name.value.trim(), role = form.elements.role.value.trim(); const title = form.elements.title.value.trim() || titleFor(role); if (!photo || !name || !role) { formError.textContent = 'Add a photo, name and role before generating your card.'; return; } if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(name)) { formError.textContent = 'Enter a valid name using letters only. Numbers are not allowed.'; form.elements.name.focus(); return; } form.elements.name.value = name.replace(/\s+/g, ' '); form.elements.title.value = title; drawCard(form.elements.name.value, role, title); previewEmpty.hidden = true; actions.hidden = false; cardReady = true; shareNote.textContent = 'Card ready — scroll down to Share to X or download.'; actions.scrollIntoView({ behavior:'smooth', block:'nearest' }); });
 const FRAME_IN_GOA = '#FrameInGoa';
 const xShareCaption = () => `Here's a look at my HH Goa 2026 Builder ID!\n\n${FRAME_IN_GOA}`;
 function exportCard() { return new Promise(resolve => canvas.toBlob(resolve, 'image/png')); }
